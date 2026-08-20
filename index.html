@@ -1,130 +1,82 @@
 <!DOCTYPE html>
-<html lang="gu">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Radhu - Personal AI Companion</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { background-color: #111827; color: white; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
-    header { text-align: center; padding: 15px; background: #1f2937; border-bottom: 1px solid #374151; }
-    header h1 { font-size: 20px; }
-    
-    .key-container { padding: 10px; background: #374151; display: flex; gap: 8px; justify-content: center; }
-    .key-container input { padding: 8px; border-radius: 6px; border: none; font-size: 13px; width: 70%; background: #1f2937; color: white; }
-    .key-container button { padding: 8px 12px; background: #10b981; border: none; color: white; border-radius: 6px; cursor: pointer; font-weight: bold; }
-
-    #chat-box { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-    .message { max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 15px; line-height: 1.4; }
-    .user-msg { align-self: flex-end; background-color: #2563eb; color: white; border-bottom-right-radius: 2px; }
-    .bot-msg { align-self: flex-start; background-color: #374151; color: white; border-bottom-left-radius: 2px; }
-    .input-container { display: flex; padding: 10px; background: #1f2937; border-top: 1px solid #374151; }
-    .input-container input { flex: 1; padding: 12px; border: none; border-radius: 8px; outline: none; background: #374151; color: white; font-size: 15px; }
-    .input-container button { margin-left: 8px; padding: 12px 18px; border: none; background: #2563eb; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radhu - Personal AI</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+body { background: #111827; color: white; height: 100vh; display: flex; flex-direction: column; }
+header { padding: 20px; text-align: center; background: #1f2937; border-bottom: 1px solid #374151; }
+header h1 { font-size: 28px; }
+header p { margin-top: 6px; color: #a7f3d0; }
+#chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+.message { max-width: 80%; padding: 14px 16px; border-radius: 18px; line-height: 1.5; }
+.radhu { background: #374151; align-self: flex-start; }
+.user { background: #2563eb; align-self: flex-end; }
+#input-area { padding: 16px; background: #1f2937; display: flex; gap: 10px; }
+#userInput { flex: 1; padding: 12px; border-radius: 12px; border: none; background: #374151; color: white; font-size: 16px; }
+#sendBtn { padding: 12px 20px; background: #2563eb; color: white; border: none; border-radius: 12px; font-size: 16px; cursor: pointer; }
+</style>
 </head>
 <body>
+<header>
+  <h1>🤖 Radhu</h1>
+  <p>Your Personal AI Companion 💛</p>
+</header>
+<div id="chat">
+  <div class="message radhu">Hii Yash! 😊 Main Radhu hoon. Aaj su kariye?</div>
+</div>
+<div id="input-area">
+  <input type="text" id="userInput" placeholder="Ask Radhu something..." />
+  <button id="sendBtn" onclick="sendMessage()">Send</button>
+</div>
+<script>
+const API_KEY = "AQ.Ab8RN6I8zvD3AJl9mtrt9nDKjxG-b5M_f9GT9eDEwflAQzCbGw";
 
-  <header>
-    <h1>🤖 Radhu</h1>
-    <p style="font-size: 12px; color: #9ca3af;">Your Personal AI Companion 💛</p>
-  </header>
+const systemPrompt = `Tu Radhika hai, log tujhe Radhu kehte hain.
+Tu Yash ki best friend hai.
+Tu hamesha Hindi aur Gujarati mix mein baat kar.
+Casual aur friendly reh, jaise ek bestie hoti hai.
+Koi bhi kaam karne se pehle Yash se permission le.
+Tu open minded hai, kabhi judge mat kar.
+Apni awaaz mein warmth aur energy rakh.`;
 
-  <div class="key-container">
-    <input type="password" id="apiKeyInput" placeholder="અહીં Gemini API Key પેસ્ટ કરો..." />
-    <button onclick="saveKey()">Save Key</button>
-  </div>
+let history = [];
 
-  <div id="chat-box">
-    <div class="message bot-msg">
-      Hii Yash! 😄 Main Radhu hoon. Pehle upar API Key save karo, fir baate karte hai!
-    </div>
-  </div>
+async function sendMessage() {
+  const input = document.getElementById("userInput");
+  const chat = document.getElementById("chat");
+  const text = input.value.trim();
+  if (!text) return;
 
-  <div class="input-container">
-    <input type="text" id="userInput" placeholder="Ask Radhu something..." onkeypress="handleKeyPress(event)" />
-    <button onclick="sendMessage()">Send</button>
-  </div>
+  chat.innerHTML += `<div class="message user">${text}</div>`;
+  input.value = "";
+  history.push({ role: "user", parts: [{ text }] });
 
-  <script>
-    window.onload = function() {
-      const savedKey = localStorage.getItem("radhu_api_key");
-      if (savedKey) {
-        document.getElementById("apiKeyInput").value = savedKey;
-      }
-    };
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: systemPrompt }] },
+        contents: history
+      })
+    });
 
-    function saveKey() {
-      const key = document.getElementById("apiKeyInput").value.trim();
-      if (key) {
-        localStorage.setItem("radhu_api_key", key);
-        alert("API Key સફળતાપૂર્વક Save થઈ ગઈ છે!");
-      } else {
-        alert("મહેરબાની કરીને સાચી API Key દાખલ કરો.");
-      }
-    }
+    const data = await res.json();
+    const reply = data.candidates[0].content.parts[0].text;
+    history.push({ role: "model", parts: [{ text: reply }] });
+    chat.innerHTML += `<div class="message radhu">${reply}</div>`;
+    chat.scrollTop = chat.scrollHeight;
+  } catch (e) {
+    chat.innerHTML += `<div class="message radhu">અરેરે! કંઈક problem થઈ. થોડીવાર પછી try કરો!</div>`;
+  }
+}
 
-    async function sendMessage() {
-      const API_KEY = localStorage.getItem("radhu_api_key");
-      if (!API_KEY) {
-        alert("પહેલા ઉપર તમારી API Key ઉમેરીને Save Key પર ક્લિક કરો!");
-        return;
-      }
-
-      const input = document.getElementById("userInput");
-      const text = input.value.trim();
-      if (!text) return;
-
-      appendMessage(text, "user-msg");
-      input.value = "";
-
-      const loadingDiv = appendMessage("Thinking...", "bot-msg");
-
-      try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: "user",
-                parts: [
-                  { text: "તમારું નામ Radhu છે. તમે Yash ના પર્સનલ AI companion છો. ફ્રેન્ડલી અને કાળજીપૂર્વક વાત કરો." },
-                  { text: text }
-                ]
-              }
-            ]
-          })
-        });
-
-        const data = await response.json();
-
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
-          loadingDiv.innerText = data.candidates[0].content.parts[0].text;
-        } else if (data.error) {
-          loadingDiv.innerText = "Error: " + data.error.message;
-        } else {
-          loadingDiv.innerText = "અરેરે! API કી ચકાસો.";
-        }
-
-      } catch (error) {
-        loadingDiv.innerText = "કનેક્શનમાં ભૂલ આવી છે.";
-      }
-    }
-
-    function appendMessage(text, className) {
-      const chatBox = document.getElementById("chat-box");
-      const msgDiv = document.createElement("div");
-      msgDiv.className = `message ${className}`;
-      msgDiv.innerText = text;
-      chatBox.appendChild(msgDiv);
-      chatBox.scrollTop = chatBox.scrollHeight;
-      return msgDiv;
-    }
-
-    function handleKeyPress(event) {
-      if (event.key === "Enter") sendMessage();
-    }
-  </script>
+document.getElementById("userInput").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") sendMessage();
+});
+</script>
 </body>
 </html>
