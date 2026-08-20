@@ -10,6 +10,9 @@ body { background: #111827; color: white; height: 100vh; display: flex; flex-dir
 header { padding: 20px; text-align: center; background: #1f2937; border-bottom: 1px solid #374151; }
 header h1 { font-size: 28px; }
 header p { margin-top: 6px; color: #a7f3d0; }
+#apiSection { padding: 15px; background: #1f2937; border-bottom: 1px solid #374151; display: flex; gap: 10px; }
+#apiInput { flex: 1; padding: 10px; border-radius: 10px; border: none; background: #374151; color: white; font-size: 14px; }
+#saveBtn { padding: 10px 16px; background: #10b981; color: white; border: none; border-radius: 10px; font-size: 14px; cursor: pointer; }
 #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
 .message { max-width: 80%; padding: 14px 16px; border-radius: 18px; line-height: 1.5; }
 .radhu { background: #374151; align-self: flex-start; }
@@ -24,53 +27,96 @@ header p { margin-top: 6px; color: #a7f3d0; }
   <h1>🤖 Radhu</h1>
   <p>Your Personal AI Companion 💛</p>
 </header>
-<div id="chat">
-  <div class="message radhu">Hii Yash! 😊 Main Radhu hoon. Aaj su kariye?</div>
+
+<div id="apiSection">
+  <input type="text" id="apiInput" placeholder="Yahan API Key daalo..." />
+  <button id="saveBtn" onclick="saveKey()">Save Key</button>
 </div>
+
+<div id="chat">
+  <div class="message radhu">Hii Yash! 😊 Pehle upar API Key save karo, fir baate karte hai!</div>
+</div>
+
 <div id="input-area">
   <input type="text" id="userInput" placeholder="Ask Radhu something..." />
   <button id="sendBtn" onclick="sendMessage()">Send</button>
 </div>
+
 <script>
-const API_KEY = "AQ.Ab8RN6LZDU-efB9Nh5_OMo3MZYDYKCw4E73TkOJjzH8wnDfLvg";
+let API_KEY = localStorage.getItem("radhu_api_key") || "";
 
 const systemPrompt = `Tu Radhika hai, log tujhe Radhu kehte hain.
 Tu Yash ki best friend hai.
 Tu hamesha Hindi aur Gujarati mix mein baat kar.
 Casual aur friendly reh, jaise ek bestie hoti hai.
 Koi bhi kaam karne se pehle Yash se permission le.
-Tu open minded hai, kabhi judge mat kar.
-Apni awaaz mein warmth aur energy rakh.`;
+Tu open minded hai, kabhi judge mat kar.`;
 
 let history = [];
 
+window.onload = function() {
+  if (API_KEY) {
+    document.getElementById("apiInput").value = API_KEY;
+    addMessage("radhu", "Hii Yash! 😊 Main ready hoon! Bol kya kariye aaj?");
+  }
+}
+
+function saveKey() {
+  const key = document.getElementById("apiInput").value.trim();
+  if (!key) { alert("API Key daalo pehle!"); return; }
+  API_KEY = key;
+  localStorage.setItem("radhu_api_key", key);
+  addMessage("radhu", "Key save ho gayi! 🎉 Ab baat karte hai Yash!");
+}
+
+function addMessage(type, text) {
+  const chat = document.getElementById("chat");
+  chat.innerHTML += `<div class="message ${type}">${text}</div>`;
+  chat.scrollTop = chat.scrollHeight;
+}
+
 async function sendMessage() {
   const input = document.getElementById("userInput");
-  const chat = document.getElementById("chat");
   const text = input.value.trim();
   if (!text) return;
+  if (!API_KEY) { addMessage("radhu", "Pehle API Key save karo upar! 😊"); return; }
 
-  chat.innerHTML += `<div class="message user">${text}</div>`;
+  addMessage("user", text);
   input.value = "";
   history.push({ role: "user", parts: [{ text }] });
+  addMessage("radhu", "Soch rahi hoon... 🤔");
 
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        system_instruction: { parts: [{ text: systemPrompt }] },
-        contents: history
-      })
-    });
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents: history
+        })
+      }
+    );
 
     const data = await res.json();
+    
+    if (data.error) {
+      addMessage("radhu", "Error: " + data.error.message);
+      return;
+    }
+
     const reply = data.candidates[0].content.parts[0].text;
     history.push({ role: "model", parts: [{ text: reply }] });
-    chat.innerHTML += `<div class="message radhu">${reply}</div>`;
-    chat.scrollTop = chat.scrollHeight;
-  } catch (e) {
-    chat.innerHTML += `<div class="message radhu">અરેરે! કંઈક problem થઈ. થોડીવાર પછી try કરો!</div>`;
+    
+    const chat = document.getElementById("chat");
+    chat.lastElementChild.remove();
+    addMessage("radhu", reply);
+
+  } catch(e) {
+    const chat = document.getElementById("chat");
+    chat.lastElementChild.remove();
+    addMessage("radhu", "Network problem! Check karo internet. Error: " + e.message);
   }
 }
 
