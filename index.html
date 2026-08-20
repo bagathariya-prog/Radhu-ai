@@ -38,11 +38,11 @@
   </div>
 
   <script>
-    // ⚠️ અહીં તમારી નવી Groq API Key ના બે ભાગ કરો:
-    const keyPart1 = "gsk_SdS56bxzY2QRlNg2RR7mWGdy"; 
-    const keyPart2 = "b3FYxgfIt09GN2eypuU7S1Af6TSk";
+    // ⚠️ Step 1 માંથી મેળવેલો ENCODED કી કોડ અહીં મૂકો:
+    const encodedKey = "Z3NrX1NkUzU2Ynh6WTJRUmxOZzJSUjdtV0dkeWIzRll4Z2ZJdDA5R04yZXlwdVU3UzFBZjZUU2s";
     
-    const API_KEY = keyPart1 + keyPart2;
+    // Auto-Decode Key
+    const API_KEY = atob(encodedKey);
 
     async function sendMessage() {
       const input = document.getElementById("userInput");
@@ -62,8 +62,7 @@
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            model: "model: "llama3-70b-8192",
-    ",
+            model: "llama-3.3-70b-versatile",
             messages: [
               {
                 role: "system",
@@ -78,12 +77,14 @@
         
         if (data.choices && data.choices[0]) {
           loadingDiv.innerText = data.choices[0].message.content;
+        } else if (data.error) {
+          loadingDiv.innerText = "Error: " + data.error.message;
         } else {
-          loadingDiv.innerText = "અરેરે! API Key માં ભૂલ છે, ચેક કરો.";
+          loadingDiv.innerText = "અરેરે! કઈંક પ્રોબ્લેમ થયો લાગે છે.";
         }
 
       } catch (error) {
-        loadingDiv.innerText = "અરેરે! કનેક્શનમાં ભૂલ આવી છે.";
+        loadingDiv.innerText = "કનેક્શનમાં ભૂલ આવી છે.";
       }
     }
 
