@@ -1,1 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radhu - Personal AI</title>
 
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #111827;
+      color: white;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 20px;
+      text-align: center;
+      background: #1f2937;
+      border-bottom: 1px solid #374151;
+    }
+
+    header h1 {
+      font-size: 28px;
+    }
+
+    header p {
+      margin-top: 6px;
+      color: #a7f3d0;
+    }
+
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 14px 16px;
+      border-radius: 18px;
+      line-height: 1.5;
+    }
+
+    .radhu {
+      background: #374151;
+      align-self: flex-start;
+    }
+
+    .yash {
+      background: #2563eb;
+      align-self: flex-end;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 10px;
+      padding: 15px;
+      background: #1f2937;
+      border-top: 1px solid #374151;
+    }
+
+    input {
+      flex: 1;
+      padding: 15px;
+      border-radius: 25px;
+      border: none;
+      font-size: 16px;
+      outline: none;
+    }
+
+    button {
+      border: none;
+      border-radius: 50%;
+      width: 52px;
+      height: 52px;
+      font-size: 20px;
+      cursor: pointer;
+      background: #22c55e;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>🤖 Radhu</h1>
+    <p>Your Personal AI Companion 💛</p>
+  </header>
+
+  <div id="chat">
+    <div class="message radhu">
+      Hii Yash! 😄 Main Radhu hoon. Aaj su kariye?
+    </div>
+  </div>
+
+  <div class="input-area">
+    <input
+      type="text"
+      id="userInput"
+      placeholder="Radhu sathe vaat karo..."
+      onkeypress="handleKeyPress(event)"
+    />
+    <button onclick="sendMessage()">➤</button>
+  </div>
+
+  <script>
+    function sendMessage() {
+      const input = document.getElementById("userInput");
+      const message = input.value.trim();
+
+      if (message === "") return;
+
+      addMessage(message, "yash");
+      input.value = "";
+
+      setTimeout(() => {
+        const reply = getRadhuReply(message);
+        addMessage(reply, "radhu");
+      }, 600);
+    }
+
+    function addMessage(text, sender) {
+      const chat = document.getElementById("chat");
+
+      const messageDiv = document.createElement("div");
+      messageDiv.className = "message " + sender;
+      messageDiv.innerText = text;
+
+      chat.appendChild(messageDiv);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function handleKeyPress(event) {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    }
+
+    function getRadhuReply(message) {
+      const text = message.toLowerCase();
+
+      if (text.includes("hello") || text.includes("hi")) {
+        return "Hii Yash! 😄 Kya haal hai? Main yahi hoon.";
+      }
+
+      if (text.includes("kaam") || text.includes("work")) {
+        return "Haan Yash, bolo su kaam chhe? Let's do it together 😄";
+      }
+
+      if (text.includes("reminder")) {
+        return "Sure! Reminder system aapde soon connect karishu. ⏰";
+      }
+
+      return "Samjhi gayi Yash 😄 Haji hu mara first version ma chhu, pan jaldi full smart Radhu banishu! 🤖💛";
+    }
+  </script>
+
+</body>
+</html>
