@@ -38,8 +38,10 @@
   </div>
 
   <script>
-    // ⚠️ અહીં તમારી Gemini API Key મૂકો:
-    const API_KEY = "AQ.Ab8RN6J8YPhACMGZWqk8j6dVd3qKntAK-Fei_G6JYvpIj6ADnA";
+    // ⚠️ Step 1 નો ENCODED કોડ આ ડબલ ક્વાટ્સ "" ની અંદર મૂકો:
+    const encodedKey = "QVEuQWI4Uk42SVZyNVFmYU5wc0g3aUQzQ19BN0kyZFhSNUJhdW5oTUZ0S2JaaFk5YWFGc2c";
+    
+    const API_KEY = atob(encodedKey.trim());
 
     async function sendMessage() {
       const input = document.getElementById("userInput");
@@ -74,6 +76,8 @@
 
         if (data.candidates && data.candidates[0].content.parts[0].text) {
           loadingDiv.innerText = data.candidates[0].content.parts[0].text;
+        } else if (data.error) {
+          loadingDiv.innerText = "Error: " + data.error.message;
         } else {
           loadingDiv.innerText = "અરેરે! API કી ચકાસો.";
         }
