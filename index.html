@@ -30,9 +30,8 @@
     <p style="font-size: 12px; color: #9ca3af;">Your Personal AI Companion 💛</p>
   </header>
 
-  <!-- API Key Enter કરવા માટેનું બોક્સ -->
   <div class="key-container">
-    <input type="password" id="apiKeyInput" placeholder="અહીં Gemini/Groq API Key પેસ્ટ કરો..." />
+    <input type="password" id="apiKeyInput" placeholder="અહીં Gemini API Key પેસ્ટ કરો..." />
     <button onclick="saveKey()">Save Key</button>
   </div>
 
@@ -48,7 +47,6 @@
   </div>
 
   <script>
-    // પેજ લોડ થાય ત્યારે સેવ કરેલી કી મેળવવી
     window.onload = function() {
       const savedKey = localStorage.getItem("radhu_api_key");
       if (savedKey) {
@@ -83,8 +81,7 @@
       const loadingDiv = appendMessage("Thinking...", "bot-msg");
 
       try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`, {
-          
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -130,5 +127,4 @@
     }
   </script>
 </body>
-  </html>
-  
+</html>
