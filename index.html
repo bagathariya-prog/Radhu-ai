@@ -5,85 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Radhu - Personal AI Companion</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
-    body {
-      background-color: #111827;
-      color: white;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    header {
-      text-align: center;
-      padding: 15px;
-      background: #1f2937;
-      border-bottom: 1px solid #374151;
-    }
-    header h1 {
-      font-size: 20px;
-    }
-    #chat-box {
-      flex: 1;
-      padding: 15px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .message {
-      max-width: 80%;
-      padding: 10px 14px;
-      border-radius: 12px;
-      font-size: 15px;
-      line-height: 1.4;
-    }
-    .user-msg {
-      align-self: flex-end;
-      background-color: #2563eb;
-      color: white;
-      border-bottom-right-radius: 2px;
-    }
-    .bot-msg {
-      align-self: flex-start;
-      background-color: #374151;
-      color: white;
-      border-bottom-left-radius: 2px;
-    }
-    .input-container {
-      display: flex;
-      padding: 10px;
-      background: #1f2937;
-      border-top: 1px solid #374151;
-    }
-    input {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      outline: none;
-      background: #374151;
-      color: white;
-      font-size: 15px;
-    }
-    button {
-      margin-left: 8px;
-      padding: 12px 18px;
-      border: none;
-      background: #2563eb;
-      color: white;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    button:active {
-      opacity: 0.8;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { background-color: #111827; color: white; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
+    header { text-align: center; padding: 15px; background: #1f2937; border-bottom: 1px solid #374151; }
+    header h1 { font-size: 20px; }
+    #chat-box { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .message { max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 15px; line-height: 1.4; }
+    .user-msg { align-self: flex-end; background-color: #2563eb; color: white; border-bottom-right-radius: 2px; }
+    .bot-msg { align-self: flex-start; background-color: #374151; color: white; border-bottom-left-radius: 2px; }
+    .input-container { display: flex; padding: 10px; background: #1f2937; border-top: 1px solid #374151; }
+    input { flex: 1; padding: 12px; border: none; border-radius: 8px; outline: none; background: #374151; color: white; font-size: 15px; }
+    button { margin-left: 8px; padding: 12px 18px; border: none; background: #2563eb; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; }
+    button:active { opacity: 0.8; }
   </style>
 </head>
 <body>
@@ -105,34 +38,32 @@
   </div>
 
   <script>
-    // તમારી Groq API Key સેટ કરી દીધી છે
-    const API_KEY = "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";
+    // ⚠️ અહી તમારી OpenRouter API Key મૂકો (sk-or-v1-...)
+    const API_KEY = "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";
 
     async function sendMessage() {
       const input = document.getElementById("userInput");
       const text = input.value.trim();
       if (!text) return;
 
-      // User Message સ્ક્રીન પર ઉમેરો
       appendMessage(text, "user-msg");
       input.value = "";
 
-      // Loading બતાવો
       const loadingDiv = appendMessage("Thinking...", "bot-msg");
 
       try {
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${API_KEY}`,
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
+            model: "meta-llama/llama-3.1-8b-instruct:free",
             messages: [
               {
                 role: "system",
-                content: "તમારું નામ Radhu છે. તમે Yash ના ફ્રેન્ડલી પર્સનલ AI companion છો. ખુશમિજાજ અને કાળજીપૂર્વક વાત કરો. યુઝર જે પણ ભાષા (ગુજરાતી, હિન્દી કે Gujlish) માં વાત કરે તેમાં જ સહજતાથી જવાબ આપો."
+                content: "તમારું નામ Radhu છે. તમે Yash ના ફ્રેન્ડલી પર્સનલ AI companion છો. ખુશમિજાજ અને કાળજીપૂર્વક વાત કરો. યુઝર જે ભાષામાં વાત કરે તેમાં જ સહજતાથી જવાબ આપો."
               },
               { role: "user", content: text }
             ]
@@ -140,16 +71,16 @@
         });
 
         const data = await response.json();
-        
+
         if (data.choices && data.choices[0]) {
           const reply = data.choices[0].message.content;
           loadingDiv.innerText = reply;
         } else {
-          loadingDiv.innerText = "અરેરે! કઈક પ્રોબ્લેમ થયો લાગે છે. API Key ચકાસો.";
+          loadingDiv.innerText = "અરેરે! API Key માં પ્રોબ્લેમ છે.";
         }
 
       } catch (error) {
-        loadingDiv.innerText = "અરેરે! કનેક્શનમાં ભૂલ આવી છે. ફરી પ્રયાસ કરો.";
+        loadingDiv.innerText = "અરેરે! કનેક્શનમાં ભૂલ આવી છે.";
       }
     }
 
@@ -164,9 +95,7 @@
     }
 
     function handleKeyPress(event) {
-      if (event.key === "Enter") {
-        sendMessage();
-      }
+      if (event.key === "Enter") sendMessage();
     }
   </script>
 
